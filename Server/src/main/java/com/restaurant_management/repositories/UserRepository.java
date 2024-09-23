@@ -17,30 +17,34 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     boolean existsByEmail(String email);
 
+    @Query("SELECT u FROM User u WHERE LOWER(u.role.name) = LOWER(:roleName)")
+    List<User> findByRoleName(@Param("roleName") String roleName);
+
     @Query("SELECT u FROM User u")
     Page<User> findAllUser(Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<User> findsByEmail(@Param("keyword") String keyword);
+    Page<User> findsByEmail(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<User> findByFullName(@Param("keyword") String keyword);
+    Page<User> findByFullName(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE LOWER(u.role.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<User> findByRoleId(@Param("keyword") String keyword);
+    Page<User> findByRoleId(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE LOWER(u.status) = LOWER(:keyword)")
-    List<User> findByStatus(@Param("keyword") String keyword);
+    Page<User> findByStatus(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.enabled = :keyword")
-    List<User> findByEnabled(@Param("keyword") Boolean keyword);
+    Page<User> findByEnabled(@Param("keyword") Boolean keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.emailVerifiedAt = :keyword")
-    List<User> findByEmailVerifiedAt(@Param("keyword") Timestamp keyword);
+    Page<User> findByEmailVerifiedAt(@Param("keyword") Timestamp keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.createdAt >= :keyword")
-    List<User> findByCreatedAt(@Param("keyword") Timestamp keyword);
+    Page<User> findByCreatedAt(@Param("keyword") Timestamp keyword, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.updatedAt >= :keyword")
-    List<User> findByUpdatedAt(@Param("keyword") Timestamp keyword);
+    Page<User> findByUpdatedAt(@Param("keyword") Timestamp keyword, Pageable pageable);
+
 }
