@@ -11,7 +11,7 @@ const LineChart: React.FC = () => {
     <>
       <div className="linechart">
         <div>
-          <Title level={5}>Chart Total Sales</Title>
+          <Title level={4}>Chart Total Sales</Title>
           <Paragraph className="lastweek">
             than last week <span className="bnb2">+30%</span>
           </Paragraph>
