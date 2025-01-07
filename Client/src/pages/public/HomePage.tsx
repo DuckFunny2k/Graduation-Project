@@ -1,24 +1,159 @@
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  useNavigate,
+  useLocation,
+  Outlet,
+  useOutletContext,
+} from 'react-router-dom';
+import { useInView } from 'react-intersection-observer';
+import BannerSlider from '../../components/public/slider/BannerSlider';
+import WhyChoose from '../../components/public/whychoose/WhyChoose';
+import DailyOffer from '../../components/public/dailyoffer/DailyOffer';
+import MenuHome from '../../components/public/menuhome/MenuHome';
+import SlideIntro from '../../components/public/slideintro/SlideIntro';
+import Chef from '../../components/public/chef/Chef';
+import FeedBack from '../../components/public/feedbacks/FeedBack';
+import Counter from '../../components/public/counter/Counter';
+import Blogs from '../../components/public/blogs/Blogs';
+import { LayoutContextType } from '../../components/public/layout/LayoutPublic';
+import { callGetAllOffers } from '../../services/clientApi';
 
 const HomePage = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { openModal, closeModal, activeModal } =
+    useOutletContext<LayoutContextType>();
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const token = params.get('access_token');
-        if (token) {
-            localStorage.setItem('accessToken', token);
-            navigate('/');
-            window.location.reload();
+  // Tạo các ref cho từng phần
+  const [whyChooseRef, whyChooseInView] = useInView({ threshold: 0.3 });
+  const [dailyOfferRef, dailyOfferInView] = useInView({ threshold: 0.3 });
+  const [menuHomeRef, menuHomeInView] = useInView({ threshold: 0.3 });
+  const [slideIntroRef, slideIntroInView] = useInView({ threshold: 0.3 });
+  const [chefRef, chefInView] = useInView({ threshold: 0.3 });
+  const [feedBackRef, feedBackInView] = useInView({ threshold: 0.3 });
+  const [counterRef, counterInView] = useInView({ threshold: 0.3 });
+  const [blogsRef, blogsInView] = useInView({ threshold: 0.3 });
+
+  const [offers, setOffers] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchOffers();
+  }, []);
+
+  const fetchOffers = async () => {
+    try {
+      const response = await callGetAllOffers();
+      const currentDate = new Date();
+
+      const validOffers = response.data._embedded.offerResponseList.filter(
+        (offer: any) => {
+          const endDate = new Date(offer.endDate);
+          return currentDate <= endDate;
         }
-    }, [location, navigate]);
-    return (
-        <div>
-            <h1 className='pt-40'>HomePage</h1>
+      );
+      setOffers(validOffers);
+    } catch (error) {
+      console.error('Error fetching offers:', error);
+      setOffers([]);
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('access_token');
+    if (token) {
+      localStorage.setItem('accessToken', token);
+      navigate('/');
+      window.location.reload();
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (location.pathname === '/register') openModal('register');
+    else if (location.pathname === '/login') openModal('login');
+    else if (location.pathname === '/forgot-password')
+      openModal('forgotPassword');
+    else if (location.pathname === '/reset-password')
+      openModal('resetPassword');
+    else if (location.pathname === '/resend-verification-email')
+      openModal('resendVerifyEmail');
+    else if (location.pathname === '/verify-email') openModal('verifyEmail');
+    else if (location.pathname === '/account') openModal('account');
+    else closeModal();
+  }, [location.pathname, openModal, closeModal]);
+
+  const memoizedComponents = useMemo(
+    () => (
+      <>
+        <BannerSlider
+          offers={offers.filter((offer) => offer.offerType === 'BANNER')}
+        />
+        <div
+          ref={whyChooseRef}
+          className={`fade-in ${whyChooseInView ? 'is-visible' : ''}`}
+        >
+          <WhyChoose />
         </div>
-    );
+        <div
+          ref={dailyOfferRef}
+          className={`fade-in ${dailyOfferInView ? 'is-visible' : ''}`}
+        >
+          <DailyOffer
+            offers={offers.filter((offer) => offer.offerType === 'DAILY')}
+          />
+        </div>
+        <div
+          ref={menuHomeRef}
+          className={`fade-in ${menuHomeInView ? 'is-visible' : ''}`}
+        >
+          <MenuHome offers={offers} />
+        </div>
+        <div
+          ref={slideIntroRef}
+          className={`fade-in ${slideIntroInView ? 'is-visible' : ''}`}
+        >
+          <SlideIntro />
+        </div>
+        {/* <div
+          ref={chefRef}
+          className={`fade-in ${chefInView ? 'is-visible' : ''}`}
+        >
+          <Chef />
+        </div> */}
+        <div
+          ref={feedBackRef}
+          className={`fade-in ${feedBackInView ? 'is-visible' : ''}`}
+        >
+          <FeedBack />
+        </div>
+        <div
+          ref={counterRef}
+          className={`fade-in ${counterInView ? 'is-visible' : ''}`}
+        >
+          <Counter />
+        </div>
+        <div
+          ref={blogsRef}
+          className={`fade-in ${blogsInView ? 'is-visible' : ''}`}
+        >
+          <Blogs />
+        </div>
+      </>
+    ),
+    [
+      offers,
+      whyChooseInView,
+      dailyOfferInView,
+      menuHomeInView,
+      slideIntroInView,
+      chefInView,
+      feedBackInView,
+      counterInView,
+      blogsInView,
+    ]
+  );
+
+  return <>{memoizedComponents}</>;
 };
 
 export default HomePage;

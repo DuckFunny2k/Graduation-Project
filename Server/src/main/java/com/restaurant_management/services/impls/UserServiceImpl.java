@@ -40,7 +40,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getUserByAccessToken() throws DataExitsException {
-
         GetUserUtil userUtil = new GetUserUtil();
         String username = userUtil.getUserEmail();
         Optional<User> user = this.userRepository.findByEmail(username);
@@ -57,17 +56,6 @@ public class UserServiceImpl implements UserService {
         );
         return Optional.of(userProfileResponse);
     }
-
-//    @Override
-//    public Optional<User> getUserByAccessToken() throws DataExitsException {
-//        GetUserUtil userUtil = new GetUserUtil();
-//        String username = userUtil.getUserEmail();
-//        Optional<User> user = this.userRepository.findByEmail(username);
-//        if (user.isEmpty()) {
-//            throw new DataExitsException("User not found with: " + username);
-//        }
-//        return user;
-//    }
 
     @Override
     public ApiResponse updateUserProfile(UserDto userDto) throws DataExitsException {
@@ -100,7 +88,7 @@ public class UserServiceImpl implements UserService {
         User _user = user.get();
         _user.setAvatar(imageUrl);
         this.userRepository.save(_user);
-        return new ApiResponse(imageUrl, HttpStatus.OK);
+        return new ApiResponse(_user.getAvatar(), HttpStatus.OK);
     }
 
     @Override
@@ -137,20 +125,4 @@ public class UserServiceImpl implements UserService {
         this.userRepository.deleteById(userId);
         return new ApiResponse("User deleted successfully", HttpStatus.OK);
     }
-
-//    @Override
-//    public void logOut(HttpServletResponse response) throws DataExitsException {
-//        GetUserUtil getUserUtil = new GetUserUtil();
-//        String userEmail = getUserUtil.getUserEmail();
-//        Optional<User> user = userRepository.findByEmail(userEmail);
-//        if (user.isEmpty()) {
-//            throw new DataExitsException("User not login!");
-//        }
-//        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-//        refreshTokenCookie.setHttpOnly(true);
-//        refreshTokenCookie.setSecure(true);
-//        refreshTokenCookie.setPath("/");
-//        refreshTokenCookie.setMaxAge(0);
-//        response.addCookie(refreshTokenCookie);
-//    }
 }

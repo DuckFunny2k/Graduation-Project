@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
@@ -34,6 +35,12 @@ public class Address {
     private String street;
 
     @Column(nullable = true)
+    private String commune;
+
+    @Column(nullable = true)
+    private String district;
+
+    @Column(nullable = true)
     private String country;
 
     @Column(nullable = true)
@@ -50,6 +57,7 @@ public class Address {
     private Timestamp createdAt;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private Timestamp updatedAt;
 
     @ManyToOne

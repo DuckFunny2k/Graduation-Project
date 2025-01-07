@@ -1,28 +1,38 @@
 import React, { useState } from 'react';
-
-import { Link } from 'react-router-dom';
+import { Button } from 'antd';
 const SocialLogin = () => {
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleClick = () => {
-        setLoading(true);
-        setTimeout(() => setLoading(false), 2000);
-    };
+  const handleClick = () => {
+    setLoading(true);
+    localStorage.setItem('googleLogin', 'true');
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/oauth2/authorization/google`;
+  };
 
-    return (
-        <>
-            <ul className="d-flex">
-                <li>
-                    <Link to={`${import.meta.env.VITE_BACKEND_URL}/auth/google`} onClick={handleClick} >
-                        {loading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fab fa-google-plus-g"></i>}
-                    </Link>
-                </li>
-                <li>
-                    <a href="#"><i className="fab fa-facebook-f"></i></a>
-                </li>
-            </ul>
-        </>
-    );
+  return (
+    <ul>
+      <li>
+        <Button
+          type="primary"
+          shape="round"
+          onClick={handleClick}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            width: '100%',
+          }}
+        >
+          {loading ? (
+            <i className="fas fa-spinner fa-spin text-xl"></i>
+          ) : (
+            <i className="fab fa-google-plus-g text-xl"></i>
+          )}
+        </Button>
+      </li>
+    </ul>
+  );
 };
 
 export default SocialLogin;

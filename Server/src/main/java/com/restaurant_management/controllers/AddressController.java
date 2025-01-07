@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "*", allowedHeaders = "*")
+//@CrossOrigin
 @RequestMapping("/api/v1/client/address")
 @Tag(name = "Address")
 public class AddressController {
@@ -50,8 +50,9 @@ public class AddressController {
             @RequestParam String userId,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "createdAt") String sortBy) throws DataExitsException {
-        return ResponseEntity.ok(addressService.getAllAddressByUserId(userId, pageNo, pageSize, sortBy));
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) throws DataExitsException {
+        return ResponseEntity.ok(addressService.getAllAddressByUserId(userId, pageNo, pageSize, sortBy, sortDir));
     }
 
 

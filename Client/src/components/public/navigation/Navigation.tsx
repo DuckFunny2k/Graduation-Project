@@ -1,54 +1,94 @@
+import { NavLink } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+
 const Navigation = () => {
-    return (
-        <>
-            <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="/">
-                    Home
-                </a>
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPagesMenuOpen, setIsPagesMenuOpen] = useState(false);
+  // Sửa type của ref
+  const menuRef = useRef<HTMLLIElement>(null);
+  const pagesMenuRef = useRef<HTMLLIElement>(null);
+  const style = 'w-[245px] h-[51px]';
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+      if (
+        pagesMenuRef.current &&
+        !pagesMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsPagesMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const togglePagesMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsPagesMenuOpen(!isPagesMenuOpen);
+  };
+
+  return (
+    <>
+      <li className="nav-item">
+        <NavLink className="nav-link" aria-current="page" to="/">
+          Home
+        </NavLink>
+      </li>
+      <li className="nav-item">
+        <NavLink className="nav-link" to="/menu">
+          Menu
+        </NavLink>
+      </li>
+      <li className="nav-item">
+        <NavLink className="nav-link" to="/about">
+          About
+        </NavLink>
+      </li>
+
+      <li className="nav-item" ref={pagesMenuRef}>
+        <button className="nav-link" onClick={togglePagesMenu}>
+          Pages <i className="far fa-angle-down"></i>
+        </button>
+        {isPagesMenuOpen && (
+          <ul className="droap_menu overflow-y-hidden">
+            <li className={style}>
+              <NavLink className={style} to="/faqs">
+                FAQs
+              </NavLink>
             </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/">
-                    Menu
-                </a>
+            <li className={style}>
+              <NavLink className={style} to="/privacy-policy">
+                Privacy Policy
+              </NavLink>
             </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/">
-                    About
-                </a>
+
+            <li className={style}>
+              <NavLink className={style} to="/terms-condition">
+                Terms and Condition
+              </NavLink>
             </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/">
-                    Chefs
-                </a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="#">
-                    Pages <i className="far fa-angle-down"></i>
-                </a>
-                <ul className="droap_menu">
-                    <li><a href="menu_details.html">Menu Details</a></li>
-                    <li><a href="blog_details.html">Blog Details</a></li>
-                    <li><a href="cart_view.html">Cart View</a></li>
-                    <li><a href="check_out.html">Checkout</a></li>
-                    <li><a href="payment.html">Payment</a></li>
-                    <li><a href="testimonial.html">Testimonial</a></li>
-                    <li><a href="search_menu.html">Search Result</a></li>
-                    <li><a href="404.html">404/Error</a></li>
-                    <li><a href="faq.html">FAQs</a></li>
-                    <li><a href="sign_in.html">Sign In</a></li>
-                    <li><a href="sign_up.html">Sign Up</a></li>
-                    <li><a href="forgot_password.html">Forgot Password</a></li>
-                    <li><a href="privacy_policy.html">Privacy Policy</a></li>
-                    <li><a href="terms_condition.html">Terms and Condition</a></li>
-                </ul>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/">Blog</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/">Contact</a>
-            </li>
-        </>
-    );
-}
-export default Navigation
+          </ul>
+        )}
+      </li>
+
+      <li className="nav-item">
+        <NavLink className="nav-link" to="/blog">
+          Blog
+        </NavLink>
+      </li>
+      <li className="nav-item">
+        <NavLink className="nav-link" to="/contact">
+          Contact
+        </NavLink>
+      </li>
+    </>
+  );
+};
+
+export default Navigation;

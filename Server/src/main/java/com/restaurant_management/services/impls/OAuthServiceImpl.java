@@ -3,10 +3,10 @@ package com.restaurant_management.services.impls;
 import com.restaurant_management.entites.Role;
 import com.restaurant_management.entites.User;
 import com.restaurant_management.enums.RoleName;
+import com.restaurant_management.enums.StatusType;
 import com.restaurant_management.repositories.RoleRepository;
 import com.restaurant_management.repositories.UserRepository;
 import com.restaurant_management.services.interfaces.OAuthService;
-import com.restaurant_management.services.interfaces.TokenService;
 import com.restaurant_management.utils.CookieUtils;
 import com.restaurant_management.utils.JwtProviderUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,6 +43,9 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
+    @Value("${RestaurantManagement.app.ClientUrl}")
+    private String ClientUrl;
+
     @Value("${restaurantManagement.app.refreshTokenExpired}")
     private int refreshTokenExpired;
 
@@ -53,8 +56,6 @@ public class OAuthServiceImpl implements OAuthService {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtProviderUtil jwtProviderUtil;
-
-    private final TokenService tokenService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -70,6 +71,7 @@ public class OAuthServiceImpl implements OAuthService {
             newUser.setEmail(email);
             newUser.setFullName(fullName);
             newUser.setEnabled(true);
+            newUser.setStatus(StatusType.ACTIVE.toString());
             newUser.setEmailVerifiedAt(Timestamp.valueOf(LocalDateTime.now()));
             Role role = roleRepository.findByName(RoleName.USER.toString());
             newUser.setRole(role);
@@ -89,12 +91,8 @@ public class OAuthServiceImpl implements OAuthService {
 
         CookieUtils.addRefreshTokenCookie(response, refreshToken, refreshTokenExpired);
 
-        String redirectUrl = "http://localhost:3000/callback?access_token=" + token;
+        String redirectUrl = ClientUrl + "callback?access_token=" + token;
         response.sendRedirect(redirectUrl);
-
-//        return JwtResponse.builder()
-//                .accessToken(token)
-//                .build();
     }
 
     private String getAccessToken(String code) {

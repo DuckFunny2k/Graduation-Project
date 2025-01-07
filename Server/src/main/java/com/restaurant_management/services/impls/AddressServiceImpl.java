@@ -10,7 +10,6 @@ import com.restaurant_management.payloads.responses.ApiResponse;
 import com.restaurant_management.repositories.AddressRepository;
 import com.restaurant_management.repositories.UserRepository;
 import com.restaurant_management.services.interfaces.AddressService;
-import com.restaurant_management.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,7 +38,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public ApiResponse addAddress(AddressDto addressDto) throws DataExitsException {
-        String currentUserName = SecurityUtils.getCurrentUserId();
+//        String currentUserName = SecurityUtils.getCurrentUserId();
         Optional<User> user = this.userRepository.findById(addressDto.getUserId());
         if (user.isEmpty()) {
             throw new DataExitsException("User not found");
@@ -72,6 +71,8 @@ public class AddressServiceImpl implements AddressService {
         _address.setCountry(addressDto.getCountry());
         _address.setPostalCode(addressDto.getPostalCode());
         _address.setStreet(addressDto.getStreet());
+        _address.setCommune(addressDto.getCommune());
+        _address.setDistrict(addressDto.getDistrict());
         _address.setAddressType(addressDto.getAddressType());
         _address.setState(addressDto.getState());
         _address.setPhoneNumber(addressDto.getPhoneNumber());
@@ -102,17 +103,21 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public PagedModel<EntityModel<AddressByUserIdResponse>> getAllAddressByUserId(String userId, int pageNo, int pageSize, String sortBy)
+    public PagedModel<EntityModel<AddressByUserIdResponse>> getAllAddressByUserId(String userId, int pageNo, int pageSize, String sortBy, String sortDir)
             throws DataExitsException {
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Order.asc(sortBy)));
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.fromString(sortDir), sortBy));
 
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId);
         }
 
-        Page<Address> addressPages = addressRepository.findByUserId(userId, pageable);
+        Page<Address> pagedResult = addressRepository.findByUserId(userId, pageable);
 
-        return pagedResourcesAssembler.toModel(addressPages.map(AddressByUserIdResponse::new));
+        if (pagedResult.hasContent()) {
+            return pagedResourcesAssembler.toModel(pagedResult.map(AddressByUserIdResponse::new));
+        } else {
+            throw new DataExitsException("No address found!");
+        }
     }
 }
